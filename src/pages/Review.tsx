@@ -1,4 +1,3 @@
-
 import { useOnboarding } from "../context/OnboardingContext";
 import ArrowIcon from "../components/ArrowIcon";
 import WizardStepPanel from "../components/WizardStepPanel";
