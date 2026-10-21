@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import {
   FluentProvider,
@@ -20,7 +21,7 @@ import { useOnboarding } from "./context/OnboardingContext";
 import type { OnboardingState } from "./types";
 
 function App() {
-  const { state, dispatch, saveSubmission } = useOnboarding();
+  const { state, dispatch, saveSubmission, saveDraft } = useOnboarding();
   const { dispatchToast } = useToastController("devflow-toaster");
 
   const step = state.step;
@@ -39,14 +40,29 @@ function App() {
     });
   }
 
-  // Navigate to Review after editing, or follow the normal step order.
+  // Save the current draft before navigating to the next step. 
   function handleNext(normalNextStep: OnboardingState["step"]) {
+    const saved = saveDraft();
+
+    if (!saved) {
+      dispatchToast(
+        <Toast>
+          <ToastTitle>Unable to save your progress.</ToastTitle>
+        </Toast>,
+        {
+          intent: "error",
+          timeout: 3000,
+        },
+      );
+
+      return;
+    }
+    // Return to Review after editing a section.
     if (returnToReview) {
       setReturnToReview(false);
       goToStep(5);
       return;
     }
-
     goToStep(normalNextStep);
   }
 
@@ -56,7 +72,21 @@ function App() {
   }
 
   function handleSubmit() {
-    saveSubmission();
+    const saved = saveSubmission();
+
+    if (!saved) {
+      dispatchToast(
+        <Toast>
+          <ToastTitle>Unable to submit onboarding. Please try again.</ToastTitle>
+        </Toast>,
+        {
+          intent: "error",
+          timeout: 3000,
+        },
+      );
+
+      return;
+    }
 
     dispatchToast(
       <Toast>
@@ -88,9 +118,7 @@ function App() {
       {step >= 1 && step <= 5 && (
         <OnboardingLayout currentStep={step - 1}>
           {step === 1 && (
-            <AccountInformation
-              onNext={() => handleNext(2)}
-            />
+            <AccountInformation onNext={() => handleNext(2)} />
           )}
 
           {step === 2 && (

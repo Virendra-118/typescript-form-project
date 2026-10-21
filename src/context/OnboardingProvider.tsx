@@ -1,9 +1,15 @@
+
 import { useReducer } from "react";
 import type { ReactNode } from "react";
 import { OnboardingContext } from "./OnboardingContext";
-import type { OnboardingAction, OnboardingState, SavedSubmission } from "../types";
+import type {
+  OnboardingAction,
+  OnboardingState,
+  SavedSubmission,
+} from "../types";
 
 const STORAGE_KEY = "devflow-onboarding";
+const DRAFT_STORAGE_KEY = "devflow-onboarding-draft";
 
 const initialState: OnboardingState = {
   step: 1,
@@ -21,7 +27,6 @@ const initialState: OnboardingState = {
   selectedPlan: "Pro",
   files: [],
 };
-
 function onboardingReducer(
   state: OnboardingState,
   action: OnboardingAction,
@@ -29,20 +34,25 @@ function onboardingReducer(
   switch (action.type) {
     case "SET_STEP":
       return { ...state, step: action.payload };
+
     case "UPDATE_ACCOUNT":
       return {
         ...state,
         accountData: { ...state.accountData, ...action.payload },
       };
+
     case "UPDATE_BUSINESS":
       return {
         ...state,
         businessData: { ...state.businessData, ...action.payload },
       };
+
     case "SET_PLAN":
       return { ...state, selectedPlan: action.payload };
+
     case "SET_FILES":
       return { ...state, files: action.payload };
+
     case "RESET":
       return {
         ...initialState,
@@ -50,14 +60,40 @@ function onboardingReducer(
         businessData: { ...initialState.businessData },
         files: [],
       };
+
     default:
       return state;
   }
 }
 
-export function OnboardingProvider({ children }: { children: ReactNode }) {
+export function OnboardingProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const [state, dispatch] = useReducer(onboardingReducer, initialState);
 
+  // Save the current progress when the user clicks Next.
+  function saveDraft(): boolean {
+    try {
+      const draft = {
+        ...state,
+        files: [],
+      };
+
+      localStorage.setItem(
+        DRAFT_STORAGE_KEY,
+        JSON.stringify(draft),
+      );
+
+      return true;
+    } catch (error) {
+      console.error("Error saving onboarding draft:", error);
+      return false;
+    }
+  }
+
+  // Save a completed onboarding submission.
   function saveSubmission(): boolean {
     try {
       const savedData = localStorage.getItem(STORAGE_KEY);
@@ -68,11 +104,17 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
 
         if (Array.isArray(parsedData)) {
           previousSubmissions = parsedData as SavedSubmission[];
-        } else if (typeof parsedData === "object" && parsedData !== null) {
-          const oldSubmission = parsedData as Partial<SavedSubmission>;
+        } else if (
+          typeof parsedData === "object" &&
+          parsedData !== null
+        ) {
+          const oldSubmission =
+            parsedData as Partial<SavedSubmission>;
 
           if (oldSubmission.accountData || oldSubmission.businessData) {
-            previousSubmissions = [oldSubmission as SavedSubmission];
+            previousSubmissions = [
+              oldSubmission as SavedSubmission,
+            ];
           }
         }
       }
@@ -82,7 +124,6 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
         accountData: {
           fullName: state.accountData.fullName,
           email: state.accountData.email,
-          
         },
         businessData: { ...state.businessData },
         selectedPlan: state.selectedPlan,
@@ -91,7 +132,10 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
 
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify([...previousSubmissions, newSubmission]),
+        JSON.stringify([
+          ...previousSubmissions,
+          newSubmission,
+        ]),
       );
 
       return true;
@@ -102,7 +146,14 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <OnboardingContext.Provider value={{ state, dispatch, saveSubmission }}>
+    <OnboardingContext.Provider
+      value={{
+        state,
+        dispatch,
+        saveSubmission,
+        saveDraft,
+      }}
+    >
       {children}
     </OnboardingContext.Provider>
   );

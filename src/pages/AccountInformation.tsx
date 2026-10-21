@@ -79,7 +79,6 @@ function AccountInformation({ onNext }: AccountInformationProps) {
         <h1 className="text-2xl font-bold tracking-[-0.025em] text-blue-950">
           Account Information
         </h1>
-
         <p className="mt-2 text-sm leading-6 text-slate-500">
           Please fill in your details to get started. You can always change
           this later.
@@ -198,10 +197,6 @@ function AccountInformation({ onNext }: AccountInformationProps) {
                 )}
               </div>
             )}
-
-
-            
-
             {errors.password && (
               <p
                 id="password-error"
