@@ -1,12 +1,118 @@
-﻿
-import { useState } from "react";
-import type { ChangeEvent, FormEvent } from "react";
+﻿import { useState } from "react";
+import type { ChangeEvent } from "react";
+import { Formik } from "formik";
+import {
+  Button,
+  Input,
+  Text,
+  makeStyles,
+  Toast,
+  ToastTitle,
+  Toaster,
+  useId,
+  useToastController,
+} from "@fluentui/react-components";
+
 import ArrowIcon from "../components/ArrowIcon";
 import FormField from "../components/FormField";
 import WizardStepPanel from "../components/WizardStepPanel";
-import { validateAccountForm } from "../utils/validation";
 import { useOnboarding } from "../context/OnboardingContext";
 import type { AccountData } from "../types";
+
+const useStyles = makeStyles({
+  heading: {
+    margin: 0,
+    color: "#172554",
+    fontSize: "24px",
+    fontWeight: 700,
+    letterSpacing: "-0.025em",
+  },
+  description: {
+    marginTop: "8px",
+    color: "#64748b",
+    fontSize: "14px",
+    lineHeight: "24px",
+  },
+  form: { width: "100%" },
+  fields: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px",
+    marginTop: "24px",
+    "@media (min-width: 901px) and (max-height: 760px)": {
+      gap: "12px",
+      marginTop: "12px",
+    },
+  },
+  field: { width: "100%", minWidth: 0 },
+  label: {
+    display: "block",
+    marginBottom: "8px",
+    color: "#334155",
+    fontSize: "14px",
+    fontWeight: 500,
+  },
+  requiredMark: { color: "#ef4444" },
+  passwordWrapper: {
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+    width: "100%",
+  },
+  passwordInput: {
+    width: "100%",
+    minWidth: 0,
+    minHeight: "46px",
+    boxSizing: "border-box",
+    paddingRight: "64px",
+    borderRadius: "8px",
+    fontSize: "14px",
+    "@media (min-width: 901px) and (max-height: 760px)": {
+      minHeight: "42px",
+    },
+  },
+  passwordToggle: { position: "absolute", right: "6px" },
+  strength: {
+    display: "block",
+    marginTop: "8px",
+    color: "#10b981",
+    fontSize: "12px",
+  },
+  error: {
+    marginTop: "4px",
+    color: "#ef4444",
+    fontSize: "14px",
+  },
+  footer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "16px",
+    marginTop: "24px",
+    paddingTop: "20px",
+    borderTop: "1px solid #f1f5f9",
+    "@media (min-width: 901px) and (max-height: 760px)": {
+      marginTop: "12px",
+      paddingTop: "12px",
+    },
+    "@media (max-width: 420px)": { gap: "12px" },
+  },
+  footerText: {
+    minWidth: 0,
+    margin: 0,
+    color: "#64748b",
+    fontSize: "14px",
+    "@media (max-width: 420px)": { fontSize: "12px" },
+  },
+  signInLink: {
+    color: "#2563eb",
+    fontWeight: 500,
+    textDecoration: "none",
+    cursor: "pointer",
+    "&:hover": { textDecoration: "underline" },
+  },
+  nextButton: { flexShrink: 0, borderRadius: "8px" },
+});
 
 type AccountInformationProps = {
   onNext: () => void;
@@ -14,11 +120,11 @@ type AccountInformationProps = {
 
 function AccountInformation({ onNext }: AccountInformationProps) {
   const { state, dispatch } = useOnboarding();
-
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof AccountData, string>>
-  >({});
   const [showPassword, setShowPassword] = useState(false);
+  const styles = useStyles();
+
+  const toasterId = useId("signin-toaster");
+  const { dispatchToast } = useToastController(toasterId);
 
   const formData = state.accountData;
   const password = formData.password || "";
@@ -36,196 +142,225 @@ function AccountInformation({ onNext }: AccountInformationProps) {
   let strength = "";
 
   if (password) {
-    if (strengthScore <= 2) {
-      strength = "Weak";
-    } else if (strengthScore <= 4) {
-      strength = "Medium";
-    } else {
-      strength = "Strong";
-    }
+    if (strengthScore <= 2) strength = "Weak";
+    else if (strengthScore <= 4) strength = "Medium";
+    else strength = "Strong";
   }
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    const { name, value } = e.target;
-    const fieldName = name as keyof AccountData;
-
-    dispatch({
-      type: "UPDATE_ACCOUNT",
-      payload: { [fieldName]: value } as Partial<AccountData>,
-    });
-
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [fieldName]: "",
-    }));
-  }
-
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    const validationErrors = validateAccountForm(formData);
-    setErrors(validationErrors);
-
-    if (Object.keys(validationErrors).length > 0) {
-      return;
-    }
-
-    onNext();
+  function handleSignIn() {
+    dispatchToast(
+      <Toast>
+        <ToastTitle>This feature is coming soon!</ToastTitle>
+      </Toast>,
+      { intent: "info", timeout: 3000 }
+    );
   }
 
   return (
     <WizardStepPanel>
-      <div className="mt-0">
-        <h1 className="text-2xl font-bold tracking-[-0.025em] text-blue-950">
-          Account Information
-        </h1>
-        <p className="mt-2 text-sm leading-6 text-slate-500">
+      <Toaster toasterId={toasterId} />
+
+      <div>
+        <h1 className={styles.heading}>Account Information</h1>
+        <p className={styles.description}>
           Please fill in your details to get started. You can always change
           this later.
         </p>
       </div>
 
-      <form noValidate onSubmit={handleSubmit}>
-        <div className="mt-6 flex flex-col gap-4 [@media(min-width:901px)_and_(max-height:760px)]:mt-3 [@media(min-width:901px)_and_(max-height:760px)]:gap-3">
-          <FormField
-            label="Full Name"
-            name="fullName"
-            type="text"
-            placeholder="Enter your full name"
-            value={formData.fullName}
-            onChange={handleChange}
-            required
-            error={errors.fullName}
-          />
+      <Formik<AccountData>
+        initialValues={formData}
+        validate={(values) => {
+          const errors: Partial<Record<keyof AccountData, string>> = {};
 
-          <FormField
-            label="Email Address"
-            name="email"
-            type="email"
-            placeholder="Enter your email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            error={errors.email}
-          />
+          if (!values.fullName.trim()) {
+            errors.fullName = "Full name is required";
+          }
 
-          <div className="w-full">
-            <label
-              htmlFor="password"
-              className="mb-2 block text-sm font-medium text-slate-700"
+          if (!values.email.trim()) {
+            errors.email = "Email is required";
+          } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
+            errors.email = "Please enter a valid email address";
+          }
+
+          const currentPassword = values.password || "";
+
+          if (!currentPassword) {
+            errors.password = "Password is required";
+          } else if (
+            currentPassword.length < 8 ||
+            currentPassword.length > 15 ||
+            !/[A-Z]/.test(currentPassword) ||
+            !/[a-z]/.test(currentPassword) ||
+            !/[0-9]/.test(currentPassword) ||
+            !/[^A-Za-z0-9]/.test(currentPassword)
+          ) {
+            errors.password =
+              "Use 8–15 characters with uppercase, lowercase, a number, and a special character";
+          }
+
+          return errors;
+        }}
+        onSubmit={(values) => {
+          dispatch({ type: "UPDATE_ACCOUNT", payload: values });
+          onNext();
+        }}
+      >
+        {({
+          values,
+          errors,
+          touched,
+          handleChange,
+          handleBlur,
+          handleSubmit,
+        }) => {
+          function updateField(event: ChangeEvent<HTMLInputElement>) {
+            handleChange(event);
+
+            const { name, value } = event.target;
+
+            dispatch({
+              type: "UPDATE_ACCOUNT",
+              payload: { [name]: value } as Partial<AccountData>,
+            });
+          }
+
+          return (
+            <form
+              className={styles.form}
+              noValidate
+              onSubmit={handleSubmit}
             >
-              Password <span className="text-red-500">*</span>
-            </label>
+              <div className={styles.fields}>
+                <FormField
+                  label="Full Name"
+                  name="fullName"
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={values.fullName}
+                  onChange={updateField}
+                  onBlur={handleBlur}
+                  required
+                  error={touched.fullName ? errors.fullName : undefined}
+                />
 
-            <div className="relative">
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={handleChange}
-                placeholder="Enter your password"
-                required
-                maxLength={15}
-                autoComplete="new-password"
-                aria-invalid={Boolean(errors.password)}
-                aria-describedby={
-                  errors.password ? "password-error" : undefined
-                }
-                className={`w-full appearance-none rounded-lg border px-4 py-3 pr-12 text-sm outline-none focus:ring-2 [@media(min-width:901px)_and_(max-height:760px)]:py-2.5 [&::-ms-reveal]:hidden [&::-webkit-credentials-auto-fill-button]:hidden ${
-                  errors.password
-                    ? "border-red-500 focus:border-red-500 focus:ring-red-100"
-                    : "border-slate-300 focus:border-blue-500 focus:ring-blue-100"
-                }`}
-              />
+                <FormField
+                  label="Email Address"
+                  name="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={values.email}
+                  onChange={updateField}
+                  onBlur={handleBlur}
+                  required
+                  error={touched.email ? errors.email : undefined}
+                />
 
-              <button
-                type="button"
-                onClick={() =>
-                  setShowPassword((previous) => !previous)
-                }
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                aria-pressed={showPassword}
-                className="absolute inset-y-0 right-3 flex items-center text-slate-500 transition hover:text-blue-600 focus:outline-none"
-              >
-                {showPassword ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-5 w-5"
-                    aria-hidden="true"
-                  >
-                    <path d="M3 3l18 18" />
-                    <path d="M10.6 10.6a2 2 0 002.8 2.8" />
-                    <path d="M9.9 5.2A10.7 10.7 0 0112 5c5 0 8.5 4.5 9 7-.2 1.2-1.2 2.7-2.7 4" />
-                    <path d="M6.2 6.2C3.9 7.7 2.3 10 2 12c.5 2.5 4 7 10 7 1.1 0 2.1-.2 3-.5" />
-                  </svg>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-5 w-5"
-                    aria-hidden="true"
-                  >
-                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                )}
-              </button>
-            </div>
+                <div className={styles.field}>
+                  <label htmlFor="password" className={styles.label}>
+                    Password <span className={styles.requiredMark}>*</span>
+                  </label>
 
-            {password && (
-              <div className="mt-2">
-                {strength !== "Strong" ? (
-                  <p className="text-xs text-emerald-500">
-                    Please use a strong password.
-                  </p>
-                ) : (
-                  <p className="text-xs text-emerald-500">
-                    Strong password!
-                  </p>
-                )}
+                  <div className={styles.passwordWrapper}>
+                    <Input
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      value={values.password || ""}
+                      onChange={(_, data) => {
+                        handleChange({
+                          target: {
+                            name: "password",
+                            value: data.value,
+                          },
+                        } as ChangeEvent<HTMLInputElement>);
+
+                        dispatch({
+                          type: "UPDATE_ACCOUNT",
+                          payload: { password: data.value },
+                        });
+                      }}
+                      onBlur={handleBlur}
+                      placeholder="Enter your password"
+                      maxLength={15}
+                      autoComplete="new-password"
+                      aria-invalid={Boolean(
+                        touched.password && errors.password
+                      )}
+                      aria-describedby={
+                        touched.password && errors.password
+                          ? "password-error"
+                          : undefined
+                      }
+                      className={styles.passwordInput}
+                    />
+
+                    <Button
+                      type="button"
+                      appearance="subtle"
+                      size="small"
+                      className={styles.passwordToggle}
+                      onClick={() =>
+                        setShowPassword((previous) => !previous)
+                      }
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                      aria-pressed={showPassword}
+                    >
+                      {showPassword ? "Hide" : "Show"}
+                    </Button>
+                  </div>
+
+                  {password && (
+                    <Text className={styles.strength} size={200}>
+                      {strength === "Strong"
+                        ? "Strong password!"
+                        : "Please use a strong password."}
+                    </Text>
+                  )}
+
+                  {touched.password && errors.password && (
+                    <p
+                      id="password-error"
+                      className={styles.error}
+                      role="alert"
+                    >
+                      {errors.password}
+                    </p>
+                  )}
+                </div>
               </div>
-            )}
-            {errors.password && (
-              <p
-                id="password-error"
-                className="mt-1 text-sm text-red-500"
-                role="alert"
-              >
-                {errors.password}
-              </p>
-            )}
-          </div>
-        </div>
 
-        <div className="mt-6 flex items-center justify-between gap-4 border-t border-slate-100 pt-5 [@media(min-width:901px)_and_(max-height:760px)]:mt-3 [@media(min-width:901px)_and_(max-height:760px)]:pt-3 max-[420px]:gap-3">
-          <p className="min-w-0 text-xs text-slate-500 sm:text-sm">
-            Already have an account?{" "}
-            <a href="#" className="font-medium text-blue-600 hover:underline">
-              Sign in
-            </a>
-          </p>
+              <div className={styles.footer}>
+                <p className={styles.footerText}>
+                  Already have an account?{" "}
+                  <a
+                    href="#"
+                    className={styles.signInLink}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      handleSignIn();
+                    }}
+                  >
+                    Sign in
+                  </a>
+                </p>
 
-          <button
-            type="submit"
-            className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-100 max-[420px]:px-4"
-          >
-            Next
-            <ArrowIcon direction="right" />
-          </button>
-        </div>
-      </form>
+                <Button
+                  type="submit"
+                  appearance="primary"
+                  className={styles.nextButton}
+                  icon={<ArrowIcon direction="right" />}
+                  iconPosition="after"
+                >
+                  Next
+                </Button>
+              </div>
+            </form>
+          );
+        }}
+      </Formik>
     </WizardStepPanel>
   );
 }

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@fluentui/react-components": "^9.74.9",
+    "formik": "^2.4.9",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

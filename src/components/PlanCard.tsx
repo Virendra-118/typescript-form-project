@@ -1,6 +1,14 @@
 ﻿
+import {
+  Badge,
+  Button,
+  Card,
+  Text,
+  makeStyles,
+  tokens,
+} from "@fluentui/react-components";
+import { CheckmarkCircleRegular } from "@fluentui/react-icons";
 import type { PlanDetails } from "../types";
-import CheckIcon from "./CheckIcon";
 
 type PlanCardProps = {
   plan: PlanDetails;
@@ -8,67 +16,151 @@ type PlanCardProps = {
   onSelect: () => void;
 };
 
+const useStyles = makeStyles({
+  card: {
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
+    height: "100%",
+    minWidth: 0,
+    padding: "20px",
+    boxSizing: "border-box",
+    border: `1px solid ${tokens.colorNeutralStroke2}`,
+    borderRadius: "12px",
+    backgroundColor: tokens.colorNeutralBackground1,
+    textAlign: "left",
+    cursor: "pointer",
+    transition: "transform 200ms, border-color 200ms, box-shadow 200ms",
+    ":hover": {
+      transform: "translateY(-4px)",
+      // borderColor: tokens.colorBrandStroke1,
+      boxShadow: tokens.shadow8,
+    },
+    ":focus-visible": {
+      outline: `2px solid ${tokens.colorBrandStroke1}`,
+      outlineOffset: "2px",
+    },
+  },
+  selected: {
+    border: `2px solid ${tokens.colorBrandStroke1}`,
+    backgroundColor: "#eff6ff",
+    boxShadow: `0 0 0 2px ${tokens.colorBrandBackground2}`,
+  },
+  popularBadge: {
+    alignSelf: "flex-start",
+    marginBottom: "8px",
+    backgroundColor: "#dbeafe",
+    color: "#1d4ed8",
+    fontWeight: 600,
+  },
+  name: {
+    color: "#172554",
+    fontSize: "18px",
+    fontWeight: 600,
+  },
+  description: {
+    marginTop: "4px",
+    color: tokens.colorNeutralForeground2,
+    fontSize: "14px",
+  },
+  price: {
+    display: "flex",
+    alignItems: "baseline",
+    gap: "5px",
+    marginTop: "16px",
+    color: "#172554",
+    fontSize: "30px",
+    fontWeight: 700,
+  },
+  period: {
+    color: tokens.colorNeutralForeground2,
+    fontSize: "14px",
+    fontWeight: 400,
+  },
+  features: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+    flex: 1,
+    marginTop: "20px",
+    marginBottom: "24px",
+    padding: 0,
+    listStyleType: "none",
+  },
+  feature: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: "8px",
+    color: tokens.colorNeutralForeground2,
+    fontSize: "14px",
+  },
+  checkIcon: {
+    flexShrink: 0,
+    color: "#10b981",
+    fontSize: "18px",
+  },
+  selectButton: {
+    width: "100%",
+    marginTop: "auto",
+  },
+});
+
 function PlanCard({ plan, selected, onSelect }: PlanCardProps) {
+  const styles = useStyles();
+
   return (
-    <button
-      type="button"
+    <Card
+      className={`${styles.card} ${selected ? styles.selected : ""}`}
       onClick={onSelect}
-      aria-pressed={selected}
       aria-label={`${plan.name} plan, $${plan.price} per month`}
-      className={`flex h-full w-full flex-col rounded-xl border p-5 text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 ${
-        selected
-          ? "border-blue-600 bg-blue-50 ring-2 ring-blue-100"
-          : "border-slate-200 bg-white hover:-translate-y-1 hover:border-blue-300 hover:shadow-md"
-      }`}
+      aria-pressed={selected}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onSelect();
+        }
+      }}
     >
       {plan.name === "Pro" && (
-        <span className="mb-2 self-start rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+        <Badge appearance="filled" className={styles.popularBadge}>
           MOST POPULAR
-        </span>
+        </Badge>
       )}
 
-      <span className="text-lg font-semibold text-blue-950">
-        {plan.name}
-      </span>
+      <Text className={styles.name}>{plan.name}</Text>
 
-      <span className="mt-1 text-sm text-slate-500">
-        {plan.description}
-      </span>
+      <Text className={styles.description}>{plan.description}</Text>
 
-      <span className="mt-4 text-3xl font-bold text-blue-950">
+      <Text className={styles.price}>
         ${plan.price}
-        <span className="text-sm font-normal text-slate-500">
-          /month
-        </span>
-      </span>
+        <Text className={styles.period}>/month</Text>
+      </Text>
 
-      <ul className="mt-5 flex-1 space-y-3">
+      <ul className={styles.features}>
         {plan.features.map((feature) => (
-          <li
-            key={feature}
-            className="flex items-start text-sm text-slate-600"
-          >
-            <span
+          <li className={styles.feature} key={feature}>
+            <CheckmarkCircleRegular
+              className={styles.checkIcon}
               aria-hidden="true"
-              className="mr-2 font-semibold text-emerald-500"
-            >
-              <CheckIcon />
-            </span>
+            />
             <span>{feature}</span>
           </li>
         ))}
       </ul>
 
-      <span
-        className={`mt-6 rounded-lg px-4 py-2 text-center text-sm font-semibold transition-colors ${
-          selected
-            ? "bg-blue-600 text-white"
-            : "border border-slate-200 text-blue-600"
-        }`}
+      <Button
+        className={styles.selectButton}
+        appearance={selected ? "primary" : "secondary"}
+        onClick={(event) => {
+          event.stopPropagation();
+          onSelect();
+        }}
       >
         {selected ? "Selected" : "Select Plan"}
-      </span>
-    </button>
+      </Button>
+    </Card>
   );
 }
 

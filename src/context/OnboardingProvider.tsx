@@ -10,6 +10,7 @@ import type {
 
 const STORAGE_KEY = "devflow-onboarding";
 const DRAFT_STORAGE_KEY = "devflow-onboarding-draft";
+const DRAFT_ID_KEY = "devflow-onboarding-draft-id";
 
 const initialState: OnboardingState = {
   step: 1,
@@ -27,9 +28,10 @@ const initialState: OnboardingState = {
   selectedPlan: "Pro",
   files: [],
 };
+
 function onboardingReducer(
   state: OnboardingState,
-  action: OnboardingAction,
+  action: OnboardingAction
 ): OnboardingState {
   switch (action.type) {
     case "SET_STEP":
@@ -73,27 +75,34 @@ export function OnboardingProvider({
 }) {
   const [state, dispatch] = useReducer(onboardingReducer, initialState);
 
-  // Save the current progress when the user clicks Next.
   function saveDraft(): boolean {
     try {
+      const existingId = localStorage.getItem(DRAFT_ID_KEY);
+      const draftId = existingId ?? crypto.randomUUID();
+
       const draft = {
-        ...state,
+        id: draftId,
+        step: state.step,
+        accountData: {
+          fullName: state.accountData.fullName,
+          email: state.accountData.email,
+        },
+        businessData: { ...state.businessData },
+        selectedPlan: state.selectedPlan,
         files: [],
+        updatedAt: new Date().toISOString(),
       };
 
-      localStorage.setItem(
-        DRAFT_STORAGE_KEY,
-        JSON.stringify(draft),
-      );
+      localStorage.setItem(DRAFT_ID_KEY, draftId);
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
 
       return true;
     } catch (error) {
-      console.error("Error saving onboarding draft:", error);
+      console.error("Error saving draft:", error);
       return false;
     }
   }
 
-  // Save a completed onboarding submission.
   function saveSubmission(): boolean {
     try {
       const savedData = localStorage.getItem(STORAGE_KEY);
@@ -108,8 +117,7 @@ export function OnboardingProvider({
           typeof parsedData === "object" &&
           parsedData !== null
         ) {
-          const oldSubmission =
-            parsedData as Partial<SavedSubmission>;
+          const oldSubmission = parsedData as Partial<SavedSubmission>;
 
           if (oldSubmission.accountData || oldSubmission.businessData) {
             previousSubmissions = [
@@ -132,11 +140,12 @@ export function OnboardingProvider({
 
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify([
-          ...previousSubmissions,
-          newSubmission,
-        ]),
+        JSON.stringify([...previousSubmissions, newSubmission])
       );
+
+      // Remove the completed draft.
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+      localStorage.removeItem(DRAFT_ID_KEY);
 
       return true;
     } catch (error) {
@@ -147,12 +156,7 @@ export function OnboardingProvider({
 
   return (
     <OnboardingContext.Provider
-      value={{
-        state,
-        dispatch,
-        saveSubmission,
-        saveDraft,
-      }}
+      value={{ state, dispatch, saveSubmission, saveDraft }}
     >
       {children}
     </OnboardingContext.Provider>

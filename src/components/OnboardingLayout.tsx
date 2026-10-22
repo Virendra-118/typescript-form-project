@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { makeStyles } from "@fluentui/react-components";
 import leftImage from "../assets/leftimg.jpg";
 import StepIndicator from "./StepIndicator";
 
@@ -8,78 +9,204 @@ type OnboardingLayoutProps = {
 };
 
 const benefits = [
-  { title: "Build faster", description: "Bring your ideas to life with ease.", icon: "bolt" },
-  { title: "Stay secure", description: "Your data is always protected.", icon: "shield" },
-  { title: "Grow together", description: "Join a community of creators and teams.", icon: "people" },
-] as const;
+  { title: "Build faster", description: "Bring your ideas to life with ease.", icon: "" },
+  { title: "Stay secure", description: "Your data is always protected.", icon: "🛡" },
+  { title: "Grow together", description: "Join a community of creators and teams.", icon: "👥" },
+];
 
-function BenefitIcon({ name }: { name: (typeof benefits)[number]["icon"] }) {
-  if (name === "bolt") {
-    return <path d="M13.2 2.5 5.8 13h5l-.7 8.5L18.2 11h-5.1l.1-8.5Z" />;
-  }
-
-  if (name === "shield") {
-    return <path d="M12 2.8 19 5.5v5.3c0 4.4-2.8 8.1-7 10.4-4.2-2.3-7-6-7-10.4V5.5l7-2.7Zm-3 9.1 2 2 4-4" />;
-  }
-
-  return <path d="M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM2.8 19v-1.2c0-2.1 2.2-3.8 5.2-3.8s5.2 1.7 5.2 3.8V19H2.8Zm10 0v-1.2c0-1.1-.4-2.1-1.2-2.9 1-.6 2.3-.9 3.8-.9 3 0 5.2 1.7 5.2 3.8V19h-7.8Z" />;
-}
+const useStyles = makeStyles({
+  layout: {
+    display: "grid",
+    gridTemplateColumns: "minmax(340px, 0.82fr) minmax(0, 1.18fr)",
+    minHeight: "100vh",
+    padding: "clamp(12px, 2vw, 24px)",
+    boxSizing: "border-box",
+    overflowX: "clip",
+    color: "#172554",
+    background: "#fff",
+    "@media (max-width: 900px)": {
+      gridTemplateColumns: "1fr",
+      padding: 0,
+    },
+    "@media (min-width: 901px) and (max-height: 760px)": {
+      paddingTop: "12px",
+      paddingBottom: "12px",
+    },
+  },
+  left: {
+    position: "relative",
+    isolation: "isolate",
+    minWidth: 0,
+    overflow: "hidden",
+    background: "#edf4ff",
+    "@media (max-width: 900px)": { minHeight: "340px" },
+    "@media (max-width: 420px)": { minHeight: "320px" },
+  },
+  image: {
+    position: "absolute",
+    inset: 0,
+    zIndex: -2,
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    objectPosition: "bottom",
+    "@media (max-width: 900px)": { objectPosition: "center 76%" },
+  },
+  overlay: {
+    position: "absolute",
+    inset: 0,
+    zIndex: -1,
+    pointerEvents: "none",
+    background: "linear-gradient(to bottom, #f2f7ff66, #f2f7ff1a, #dee7ff1a)",
+  },
+  content: {
+    position: "relative",
+    zIndex: 1,
+    maxWidth: "600px",
+    padding: "clamp(32px, 5vh, 56px) clamp(24px, 5vw, 56px)",
+    "@media (max-width: 900px)": {
+      minHeight: "340px",
+      boxSizing: "border-box",
+      padding: "24px clamp(22px, 6vw, 36px) 30px",
+    },
+    "@media (max-width: 420px)": { minHeight: "320px" },
+    "@media (min-width: 901px) and (max-height: 760px)": {
+      paddingTop: "24px",
+    },
+  },
+  logo: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "12px",
+    fontSize: "22px",
+    fontWeight: 750,
+    letterSpacing: "-0.04em",
+    color: "#172554",
+    textDecoration: "none",
+    "@media (max-width: 900px)": { gap: "9px", fontSize: "18px" },
+  },
+  mark: {
+    display: "grid",
+    placeItems: "center",
+    width: "32px",
+    height: "32px",
+    borderRadius: "11px",
+    background: "linear-gradient(145deg, #5332e8, #316df4)",
+    boxShadow: "0 5px 15px #3b54ec33",
+    "@media (max-width: 900px)": { width: "28px", height: "28px" },
+  },
+  markShape: {
+    width: "17px",
+    height: "22px",
+    borderRadius: "2px 12px 12px 2px",
+    background: "#dce8ff",
+    clipPath: "polygon(0 0,64% 0,100% 50%,64% 100%,0 100%,39% 50%)",
+  },
+  welcome: {
+    maxWidth: "410px",
+    marginTop: "clamp(38px, 6vh, 72px)",
+    "@media (min-width: 901px) and (max-height: 760px)": { marginTop: "24px" },
+    "@media (max-width: 900px)": { maxWidth: "340px", marginTop: "28px" },
+  },
+  heading: {
+    margin: 0,
+    fontSize: "clamp(34px, 3.25vw, 48px)",
+    fontWeight: 760,
+    lineHeight: 1.12,
+    letterSpacing: "-0.045em",
+    "@media (max-width: 900px)": { maxWidth: "300px", fontSize: "clamp(28px, 7vw, 36px)" },
+  },
+  accent: {
+    display: "block",
+    color: "#3566ed",
+    "@media (max-width: 900px)": { display: "inline" },
+  },
+  description: {
+    maxWidth: "390px",
+    marginTop: "15px",
+    color: "#64748b",
+    fontSize: "15px",
+    lineHeight: 1.65,
+    "@media (max-width: 900px)": {
+      maxWidth: "320px",
+      marginTop: "9px",
+      fontSize: "13px",
+    },
+  },
+  benefits: {
+    display: "grid",
+    gap: "16px",
+    marginTop: "28px",
+    padding: 0,
+    listStyle: "none",
+    "@media (min-width: 901px) and (max-height: 760px)": { gap: "8px", marginTop: "16px" },
+    "@media (max-width: 900px)": { display: "none" },
+  },
+  benefit: { display: "flex", alignItems: "center", gap: "12px" },
+  benefitIcon: {
+    display: "grid",
+    placeItems: "center",
+    flexShrink: 0,
+    width: "34px",
+    height: "34px",
+    borderRadius: "50%",
+    background: "#e2ebffd9",
+    color: "#315fe0",
+  },
+  benefitText: { display: "grid", gap: "2px" },
+  benefitTitle: { color: "#1e2e50", fontSize: "14px", fontWeight: 650 },
+  benefitDescription: { color: "#64748b", fontSize: "12px", lineHeight: 1.4 },
+  right: {
+    display: "flex",
+    justifyContent: "center",
+    minWidth: 0,
+    overflowX: "clip",
+    padding: "clamp(24px, 4vh, 40px) clamp(24px, 4vw, 56px)",
+    "@media (min-width: 901px) and (max-height: 760px)": { paddingTop: "12px", paddingBottom: "12px" },
+    "@media (max-width: 900px)": { padding: "24px clamp(18px, 5vw, 32px) 32px" },
+    "@media (max-width: 420px)": { paddingLeft: "16px", paddingRight: "16px" },
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
+    maxWidth: "880px",
+    minWidth: 0,
+  },
+});
 
 function OnboardingLayout({ currentStep, children }: OnboardingLayoutProps) {
-  return (
-    <div className="grid min-h-screen w-full max-w-full grid-cols-[minmax(340px,0.82fr)_minmax(0,1.18fr)] overflow-x-clip bg-white p-[clamp(12px,2vw,24px)] text-[#172554] [@media(min-width:901px)_and_(max-height:760px)]:py-3 max-[900px]:grid-cols-1 max-[900px]:p-0">
-      <aside className="relative isolate min-w-0 overflow-hidden bg-[#edf4ff] max-[900px]:min-h-[340px] max-[420px]:min-h-[320px]">
-        <img
-          className="absolute inset-0 z-[-2] h-full w-full object-cover object-bottom max-[900px]:object-[center_76%]"
-          src={leftImage}
-          alt=""
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-[-1] bg-gradient-to-b from-[#f2f7ff]/40 via-[#f2f7ff]/10 to-[#dee7ff]/10"
-        />
+  const s = useStyles();
 
-        <div className="relative z-10 w-full max-w-[600px] px-[clamp(24px,5vw,56px)] py-[clamp(32px,5vh,56px)] [@media(min-width:901px)_and_(max-height:760px)]:pt-6 max-[900px]:min-h-[340px] max-[900px]:px-[clamp(22px,6vw,36px)] max-[900px]:pt-6 max-[900px]:pb-[30px] max-[420px]:min-h-[320px]">
-          <a
-            className="inline-flex items-center gap-3 text-[22px] font-[750] tracking-[-0.04em] text-[#172554] no-underline max-[900px]:gap-[9px] max-[900px]:text-lg"
-            href="#"
-            aria-label="DevFlow home"
-          >
-            <span className="grid h-8 w-8 place-items-center overflow-hidden rounded-[11px] bg-[linear-gradient(145deg,#5332e8_0%,#316df4_72%)] shadow-[0_5px_15px_rgba(59,84,236,0.2)] max-[900px]:h-7 max-[900px]:w-7">
-              <span className="h-[22px] w-[17px] rounded-[2px_12px_12px_2px] bg-[#dce8ff] [clip-path:polygon(0_0,64%_0,100%_50%,64%_100%,0_100%,39%_50%)]" />
-            </span>
-            <span>Dev<span className="text-[#2563eb]">Flow</span></span>
+  return (
+    <div className={s.layout}>
+      <aside className={s.left}>
+        <img className={s.image} src={leftImage} alt="" />
+        <div className={s.overlay} />
+
+        <div className={s.content}>
+          <a className={s.logo} href="#" aria-label="DevFlow home">
+            <span className={s.mark}><span className={s.markShape} /></span>
+            <span>Dev<span style={{ color: "#2563eb" }}>Flow</span></span>
           </a>
 
-          <div className="mt-[clamp(38px,6vh,72px)] max-w-[410px] [@media(min-width:901px)_and_(max-height:760px)]:mt-6 max-[900px]:mt-7 max-[900px]:max-w-[340px]">
-            <h1 className="m-0 max-w-none text-[clamp(34px,3.25vw,48px)] font-[760] leading-[1.12] tracking-[-0.045em] text-[#172554] max-[900px]:max-w-[300px] max-[900px]:text-[clamp(28px,7vw,36px)]">
-              Welcome to <span className="block text-[#3566ed] max-[900px]:inline">DevFlow!</span>
+          <div className={s.welcome}>
+            <h1 className={s.heading}>
+              Welcome to <span className={s.accent}>DevFlow!</span>
             </h1>
-            <p className="mt-[15px] max-w-[390px] text-[15px] leading-[1.65] text-[#64748b] max-[900px]:mt-[9px] max-[900px]:max-w-[320px] max-[900px]:text-[13px]">
-              Let&apos;s get you set up. It only takes a few minutes to create your account and start your journey.
+            <p className={s.description}>
+              Let&apos;s get you set up. It only takes a few minutes to create
+              your account and start your journey.
             </p>
           </div>
 
-          <ul className="mt-7 grid list-none gap-4 p-0 [@media(min-width:901px)_and_(max-height:760px)]:mt-4 [@media(min-width:901px)_and_(max-height:760px)]:gap-2 max-[900px]:hidden">
-            {benefits.map((benefit) => (
-              <li key={benefit.title} className="flex items-center gap-3">
-                <span className="grid h-[34px] w-[34px] shrink-0 place-items-center rounded-full bg-[#e2ebff]/85 text-[#315fe0]">
-                  <svg
-                    className="h-[17px] w-[17px]"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <BenefitIcon name={benefit.icon} />
-                  </svg>
-                </span>
-                <span className="grid gap-0.5">
-                  <strong className="text-sm font-[650] text-[#1e2e50]">{benefit.title}</strong>
-                  <small className="text-xs leading-[1.4] text-[#64748b]">{benefit.description}</small>
+          <ul className={s.benefits}>
+            {benefits.map((item) => (
+              <li className={s.benefit} key={item.title}>
+                <span className={s.benefitIcon}>{item.icon}</span>
+                <span className={s.benefitText}>
+                  <strong className={s.benefitTitle}>{item.title}</strong>
+                  <small className={s.benefitDescription}>{item.description}</small>
                 </span>
               </li>
             ))}
@@ -87,8 +214,8 @@ function OnboardingLayout({ currentStep, children }: OnboardingLayoutProps) {
         </div>
       </aside>
 
-      <main className="flex min-w-0 items-stretch justify-center overflow-x-clip px-[clamp(24px,4vw,56px)] py-[clamp(24px,4vh,40px)] [@media(min-width:901px)_and_(max-height:760px)]:px-[clamp(24px,4vw,56px)] [@media(min-width:901px)_and_(max-height:760px)]:py-3 max-[900px]:px-[clamp(18px,5vw,32px)] max-[900px]:pt-6 max-[900px]:pb-8 max-[420px]:px-4">
-        <div className="mx-auto flex w-full min-w-0 max-w-[880px] flex-col">
+      <main className={s.right}>
+        <div className={s.form}>
           <StepIndicator currentStep={currentStep} />
           {children}
         </div>

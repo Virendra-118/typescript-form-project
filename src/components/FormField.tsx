@@ -1,11 +1,52 @@
 ﻿
-import type { ChangeEventHandler, HTMLInputTypeAttribute } from "react";
+import type {
+  ChangeEventHandler,
+  FocusEventHandler,
+  HTMLInputTypeAttribute,
+} from "react";
+import {
+  Field,
+  Input,
+  makeStyles,
+} from "@fluentui/react-components";
+
+const useStyles = makeStyles({
+  field: {
+    width: "100%",
+    minWidth: 0,
+  },
+  label: {
+    color: "#334155",
+    fontSize: "14px",
+    fontWeight: 500,
+  },
+  requiredMark: {
+    color: "#ef4444",
+  },
+  input: {
+    width: "100%",
+    minWidth: 0,
+    minHeight: "46px",
+    boxSizing: "border-box",
+    borderRadius: "8px",
+    fontSize: "14px",
+    "@media (min-width: 901px) and (max-height: 760px)": {
+      minHeight: "42px",
+    },
+  },
+  error: {
+    marginTop: "4px",
+    color: "#ef4444",
+    fontSize: "14px",
+  },
+});
 
 type FormFieldProps = {
   label: string;
   name: string;
   value: string;
   onChange: ChangeEventHandler<HTMLInputElement>;
+  onBlur?: FocusEventHandler<HTMLInputElement>;
   type?: HTMLInputTypeAttribute;
   placeholder?: string;
   required?: boolean;
@@ -14,53 +55,51 @@ type FormFieldProps = {
 
 function FormField({
   label,
-  type = "text",
-  placeholder,
   name,
   value,
   onChange,
+  onBlur,
+  type = "text",
+  placeholder,
   required = false,
   error,
 }: FormFieldProps) {
-  return (
-    <div className="w-full">
-      <label
-        htmlFor={name}
-        className="mb-2 block text-sm font-medium text-slate-700"
-      >
-        {label}
-        {required && (
-          <span className="ml-1 text-red-500">*</span>
-        )}
-      </label>
+  const styles = useStyles();
 
-      <input
+  return (
+    <Field
+      className={styles.field}
+      label={
+        <span className={styles.label}>
+          {label}
+          {required && (
+            <span className={styles.requiredMark}> *</span>
+          )}
+        </span>
+      }
+      validationState={error ? "error" : "none"}
+      validationMessage={
+        error ? (
+          <span id={`${name}-error`} className={styles.error} role="alert">
+            {error}
+          </span>
+        ) : undefined
+      }
+    >
+      <Input
         id={name}
         name={name}
-        type={type}
+        // type={type}
         value={value}
         onChange={onChange}
+        onBlur={onBlur}
         placeholder={placeholder}
         required={required}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${name}-error` : undefined}
-        className={`w-full rounded-lg border px-4 py-3 text-sm outline-none transition focus:ring-2 [@media(min-width:901px)_and_(max-height:760px)]:py-2.5 ${
-          error
-            ? "border-red-500 focus:border-red-500 focus:ring-red-100"
-            : "border-slate-300 focus:border-blue-500 focus:ring-blue-100"
-        }`}
+        className={styles.input}
       />
-
-      {error && (
-        <p
-          id={`${name}-error`}
-          className="mt-1 text-sm text-red-500"
-          role="alert"
-        >
-          {error}
-        </p>
-      )}
-    </div>
+    </Field>
   );
 }
 
