@@ -93,7 +93,7 @@ export function OnboardingProvider({
         updatedAt: new Date().toISOString(),
       };
 
-      localStorage.setItem(DRAFT_ID_KEY, draftId);
+      // localStorage.setItem(DRAFT_ID_KEY, draftId);
       localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
 
       return true;
@@ -144,8 +144,8 @@ export function OnboardingProvider({
       );
 
       // Remove the completed draft.
-      localStorage.removeItem(DRAFT_STORAGE_KEY);
-      localStorage.removeItem(DRAFT_ID_KEY);
+      // localStorage.removeItem(DRAFT_STORAGE_KEY);
+      // localStorage.removeItem(DRAFT_ID_KEY);
 
       return true;
     } catch (error) {

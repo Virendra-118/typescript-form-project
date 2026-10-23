@@ -32,7 +32,6 @@ type BusinessFormValues = {
   companySize: string;
   industry: string;
 };
-
 const companySizes = [
   "1-10 employees",
   "11-50 employees",
@@ -40,7 +39,6 @@ const companySizes = [
   "201-500 employees",
   "500+ employees",
 ];
-
 const industries = [
   "Technology",
   "Healthcare",
@@ -49,7 +47,6 @@ const industries = [
   "Retail",
   "Other",
 ];
-
 const useStyles = makeStyles({
   heading: {
     color: "#172554",
