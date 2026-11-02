@@ -1,3 +1,4 @@
+
 import {
   Button,
   Card,
@@ -18,9 +19,13 @@ import { useOnboarding } from "../context/OnboardingContext";
 import WizardStepPanel from "../components/WizardStepPanel";
 import type { Plan } from "../types";
 
+// Previous code:
+// onSubmit: () => void;
+
+// Updated code:
 type ReviewProps = {
   onBack: () => void;
-  onSubmit: () => void;
+  onSubmit: () => void | Promise<void>;
   onEditAccount: () => void;
   onEditBusiness: () => void;
   onEditPlan: () => void;

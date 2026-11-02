@@ -1,4 +1,5 @@
-﻿export type AccountData = {
+﻿
+export type AccountData = {
   fullName: string;
   email: string;
   password: string;
@@ -20,16 +21,38 @@ export type PlanDetails = {
   features: string[];
 };
 
+// Previous code:
+// export type OnboardingState = {
+//   step: number;
+//   accountData: AccountData;
+//   businessData: BusinessData;
+//   selectedPlan: Plan;
+//   files: File[];
+// };
+
+// Updated code:
+export type OnboardingStep = 1 | 2 | 3 | 4 | 5 | 6;
+
 export type OnboardingState = {
-  step: number;
+  step: OnboardingStep;
   accountData: AccountData;
   businessData: BusinessData;
   selectedPlan: Plan;
   files: File[];
 };
 
+// Previous code:
+// export type OnboardingAction =
+//   | { type: "SET_STEP"; payload: number }
+//   | { type: "UPDATE_ACCOUNT"; payload: Partial<AccountData> }
+//   | { type: "UPDATE_BUSINESS"; payload: Partial<BusinessData> }
+//   | { type: "SET_PLAN"; payload: Plan }
+//   | { type: "SET_FILES"; payload: File[] }
+//   | { type: "RESET" };
+
+// Updated code:
 export type OnboardingAction =
-  | { type: "SET_STEP"; payload: number }
+  | { type: "SET_STEP"; payload: OnboardingStep }
   | { type: "UPDATE_ACCOUNT"; payload: Partial<AccountData> }
   | { type: "UPDATE_BUSINESS"; payload: Partial<BusinessData> }
   | { type: "SET_PLAN"; payload: Plan }
@@ -45,4 +68,12 @@ export type SavedSubmission = {
   businessData: BusinessData;
   selectedPlan: Plan;
   submittedAt: string;
+};
+
+// New context type for API and draft functions
+export type OnboardingContextType = {
+  state: OnboardingState;
+  dispatch: React.Dispatch<OnboardingAction>;
+  saveDraft: () => boolean;
+  saveSubmission: () => Promise<boolean>;
 };

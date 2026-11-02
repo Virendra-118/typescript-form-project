@@ -9,7 +9,13 @@ import type {
 export type OnboardingContextValue = {
   state: OnboardingState;
   dispatch: Dispatch<OnboardingAction>;
-  saveSubmission: () => boolean;
+
+  // Previous code:
+  // saveSubmission: () => boolean;
+
+  // Updated code:
+  saveSubmission: () => Promise<boolean>;
+
   saveDraft: () => boolean;
 };
 

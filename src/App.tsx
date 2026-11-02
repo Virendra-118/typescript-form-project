@@ -1,3 +1,9 @@
+
+/*
+=========================================================
+PREVIOUS CODE - PRESERVED
+=========================================================
+
 // import { useEffect, useState } from "react";
 // import {
 //   FluentProvider,
@@ -25,7 +31,6 @@
 
 //   const step = state.step;
 //   const [returnToReview, setReturnToReview] = useState(false);
-  
 
 //   useEffect(() => {
 //     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -148,8 +153,10 @@
 
 // export default App;
 
-
-
+=========================================================
+UPDATED CODE - API INTEGRATION
+=========================================================
+*/
 
 import { useEffect, useState } from "react";
 import {
@@ -217,8 +224,11 @@ function App() {
     goToStep(editStep);
   }
 
-  function handleSubmit() {
-    if (!saveSubmission()) {
+  // Submit data to the backend API
+  async function handleSubmit() {
+    const success = await saveSubmission();
+
+    if (!success) {
       dispatchToast(
         <Toast>
           <ToastTitle>
